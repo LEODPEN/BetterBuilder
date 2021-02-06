@@ -65,15 +65,16 @@ public class BetterBuilderProcessor extends AbstractProcessor {
 
             // todo builder操作
 
-            if (e.getAnnotation(BetterBuilder.class).fluent()) {
-                makeFluent(tree, className);
-            }
+            makeFluent(tree, className,
+                    e.getAnnotation(BetterBuilder.class).fluentGet(),
+                    e.getAnnotation(BetterBuilder.class).fluentSet());
+
         }
         return true;
     }
 
 
-    private void makeFluent(JCTree tree, String className) {
+    private void makeFluent(JCTree tree, String className, boolean get, boolean set) {
         tree.accept(new TreeTranslator() {
             @Override
             public void visitClassDef(JCTree.JCClassDecl jcClassDecl) {
@@ -87,7 +88,7 @@ public class BetterBuilderProcessor extends AbstractProcessor {
 
                 jcVariableDeclList.forEach(jcVariableDecl -> {
                     messager.printMessage(Diagnostic.Kind.NOTE,jcVariableDecl.getName()+" is being processed to be fluent.");
-                    jcClassDecl.defs = jcClassDecl.defs.prepend(makeFluentMethodDecl(jcVariableDecl, names.fromString(className)));
+                    jcClassDecl.defs = jcClassDecl.defs.prepend(makeFluentMethodDecl(jcVariableDecl, names.fromString(className), get, set));
                     messager.printMessage(Diagnostic.Kind.NOTE,jcVariableDecl.getName()+" done.");
                 });
                 super.visitClassDef(jcClassDecl);
@@ -95,16 +96,22 @@ public class BetterBuilderProcessor extends AbstractProcessor {
         });
     }
 
-    private JCTree.JCMethodDecl makeFluentMethodDecl(JCTree.JCVariableDecl variableDecl, Name className) {
+    private JCTree.JCMethodDecl makeFluentMethodDecl(JCTree.JCVariableDecl variableDecl, Name className, boolean get, boolean set) {
         Name name = variableDecl.getName();
         // body 语句块
-        List<JCTree.JCStatement> statements = List.of(makeAssignment(
-                // selected：before . | selector：behind .
-                treeMaker.Select(treeMaker.Ident(names.fromString("this")), name),
-                treeMaker.Ident(name)
-        ));
-// treeMaker.Return(treeMaker.Ident(names.fromString("null")))
-        JCTree.JCBlock block =  treeMaker.Block(0L, statements);
+        ListBuffer<JCTree.JCStatement> statements = new ListBuffer<>();
+        if (set) {
+            statements.add(makeAssignment(
+                    // selected：before . | selector：behind .
+                    treeMaker.Select(treeMaker.Ident(names.fromString("this")), name),
+                    treeMaker.Ident(name)
+            ));
+        }
+        if (get) {
+            // todo
+        }
+        // treeMaker.Return(treeMaker.Ident(names.fromString("null")))
+        JCTree.JCBlock block =  treeMaker.Block(0L, statements.toList());
 
         // params fluent直接一个参数就OK
         List<JCTree.JCVariableDecl> params = List.of(

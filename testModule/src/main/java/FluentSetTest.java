@@ -3,10 +3,10 @@ import cn.mpy634.annotion.BetterBuilder;
 /**
  * @author LEO D PEN
  * @date 2021/2/6
- * @desc
+ * @desc first test: to test the fluentSet.
  */
-@BetterBuilder(fluent = true)
-public class Pftest {
+@BetterBuilder(fluentSet = true)
+public class FluentSetTest {
 
     private Long id;
 
@@ -16,8 +16,8 @@ public class Pftest {
 
 
     public static void main(String[] args) {
-        Pftest pfTest = new Pftest();
-        pfTest.num(1);
-        System.out.println(pfTest.num);
+        FluentSetTest fst = new FluentSetTest();
+        fst.num(1);
+        System.out.println(fst.num);
     }
 }

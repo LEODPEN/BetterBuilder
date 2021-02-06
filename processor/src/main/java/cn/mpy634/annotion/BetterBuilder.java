@@ -15,6 +15,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface BetterBuilder {
 
-    boolean fluent() default false;
+    boolean fluentSet() default false;
+
+    boolean fluentGet() default false;
 
 }
