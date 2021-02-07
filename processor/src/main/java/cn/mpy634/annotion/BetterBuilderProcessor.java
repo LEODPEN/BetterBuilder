@@ -99,7 +99,7 @@ public class BetterBuilderProcessor extends AbstractProcessor {
     private List<JCTree> makeFluentMethodDecl(JCTree.JCVariableDecl variableDecl, Name className, boolean get, boolean set) {
         Name name = variableDecl.getName();
         ListBuffer<JCTree> methods = new ListBuffer<>();
-
+        treeMaker.pos = variableDecl.pos;
         if (set) {
             List<JCTree.JCStatement> statements = List.of(makeAssignment(
                     // selected：before . | selector：behind .

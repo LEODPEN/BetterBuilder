@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @desc
  */
 @DisplayName("test for fluentSet")
-@SuppressWarnings("all")
 class FluentSetTestTest {
 
     private static FluentSetTest fst;
