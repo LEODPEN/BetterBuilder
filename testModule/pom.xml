@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>testModule</artifactId>
+    <artifactId>better-builder-test</artifactId>
 
     <properties>
         <junit-jupiter.version>5.5.2</junit-jupiter.version>
@@ -18,7 +18,7 @@
     <dependencies>
         <dependency>
             <groupId>cn.mpy634</groupId>
-            <artifactId>processor</artifactId>
+            <artifactId>better-builder-core</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
@@ -30,5 +30,18 @@
         </dependency>
 
     </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Need at least 2.22.0 to support JUnit 5 -->
+<!--            打包专用，否则报Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:2.12.4:test (default-test) on project testModule: There are test failures.-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M3</version>
+            </plugin>
+
+        </plugins>
+    </build>
 
 </project>
