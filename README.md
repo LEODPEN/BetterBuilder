@@ -8,9 +8,9 @@ better builder for Java beans.
 
 - [x] fluent - set
 
-- [ ] fluent - get
+- [x] fluent - get
 
-- [ ] update set【return 改造】
+- [ ] update set【return 可选改造】
 
 - [ ] 字段屏蔽机制
 

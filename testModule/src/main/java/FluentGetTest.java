@@ -23,5 +23,4 @@ public class FluentGetTest {
         this.fluentSetTest = fluentSetTest;
     }
 
-
 }
