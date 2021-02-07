@@ -8,16 +8,19 @@ import cn.mpy634.annotion.BetterBuilder;
 @BetterBuilder(fluentSet = true)
 public class FluentSetTest {
 
-    private Long id;
+    // 改为public是为测试需要
+    public Long id;
 
-    private String name;
+    public String name;
 
     public Integer num;
 
+    public FluentSetTest() {}
 
-    public static void main(String[] args) {
-        FluentSetTest fst = new FluentSetTest();
-        fst.num(1);
-        System.out.println(fst.num);
+    public FluentSetTest(Long id, String name, Integer num) {
+        this.id = id;
+        this.name = name;
+        this.num = num;
     }
+
 }
