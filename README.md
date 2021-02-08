@@ -6,14 +6,20 @@ better builder for Java beans.
 
 - [ ] fluent - builder
 
-- [x] fluent - set
+- [x] fluent - set / tested
 
-- [x] fluent - get
+- [x] fluent - get / tested
 
-- [ ] update set【return 可选改造】
+- [ ] update set【return this or void】
 
-- [ ] 字段屏蔽机制
+- [ ] ignore set / on field
 
-- [ ] 踩坑合集开坑
+- [ ] ignore get / on field
+
+- [ ] ignore build / on field
+
+- [ ] Exception info
+
+- [ ] 与lombok兼容
 
 ...
