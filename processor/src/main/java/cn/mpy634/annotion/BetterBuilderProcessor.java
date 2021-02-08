@@ -1,5 +1,7 @@
 package cn.mpy634.annotion;
 
+import cn.mpy634.constant.StrConstant;
+import cn.mpy634.utils.ElementUtils;
 import com.sun.source.tree.Tree;
 import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Flags;
@@ -17,16 +19,17 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import java.util.Set;
 
+
 /**
  * @author LEO D PEN
  * @date 2021/2/6
- * @desc https://stackoverflow.com/questions/38926255/maven-annotation-processing-processor-not-found
+ * @desc 可能问题1: https://stackoverflow.com/questions/38926255/maven-annotation-processing-processor-not-found
+ *              2: 暂略
  */
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedAnnotationTypes("cn.mpy634.annotion.BetterBuilder")
+@SupportedAnnotationTypes({"cn.mpy634.annotion.BetterBuilder"})
 public class BetterBuilderProcessor extends AbstractProcessor {
-
 
     // 编译时插入日志
     private Messager messager;
@@ -34,13 +37,13 @@ public class BetterBuilderProcessor extends AbstractProcessor {
     // 提供抽象语法树
     private JavacTrees javacTrees;
 
-    // 使用 TreeMaker 对象和 Names 来处理 AST
-
-    // 分封了创建AST节点的一些方法
     private TreeMaker treeMaker;
 
-    // 提供创建标识符的方法
     private Names names;
+
+    private static final String BUILDER = "builder";
+
+    private static final String BUILD = "build";
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -52,51 +55,98 @@ public class BetterBuilderProcessor extends AbstractProcessor {
         this.names = Names.instance(context);
     }
 
-
-    // 如果返回是true的话，那么javac过程会再次重新从解析与填充符号表处开始进行
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         // Represents a program element such as a package, class, or method.
         Set<? extends Element> elementsWithAnnotation = roundEnv.getElementsAnnotatedWith(BetterBuilder.class);
-        messager.printMessage(Diagnostic.Kind.NOTE,"the set size is " + elementsWithAnnotation.size());
+        messager.printMessage(Diagnostic.Kind.NOTE,"the betterBuilder set size is " + elementsWithAnnotation.size());
         for (Element e : elementsWithAnnotation) {
+            if (!ElementUtils.isClass(e)) {
+                messager.printMessage(Diagnostic.Kind.ERROR, StrConstant.onlyClassPrefix + BetterBuilder.class.getSimpleName());
+                throw new UnsupportedOperationException(StrConstant.onlyClassPrefix + BetterBuilder.class.getSimpleName() + "!");
+            }
             JCTree tree = javacTrees.getTree(e);
-            String className = e.toString();
+            boolean makeAllArgsConstructor = !ElementUtils.hasAllArgsConstructor(e, e.getModifiers());
+            boolean noBuilder = e.getAnnotation(BetterBuilder.class).noBuilder();
+            tree.accept(new TreeTranslator() {
+                @Override
+                public void visitClassDef(JCTree.JCClassDecl jcClassDecl) {
 
-            // todo builder操作
+                    List<JCTree.JCVariableDecl> jcVariableDeclList = List.nil(); // EMPTY
+                    for (JCTree jcTree : jcClassDecl.defs){
+                        if (jcTree.getKind().equals(Tree.Kind.VARIABLE)){
+                            JCTree.JCVariableDecl jcVariableDecl = (JCTree.JCVariableDecl) jcTree;
+                            jcVariableDeclList = jcVariableDeclList.append(jcVariableDecl);
+                        }
+                    }
 
-            makeFluent(tree, className,
-                    e.getAnnotation(BetterBuilder.class).fluentGet(),
-                    e.getAnnotation(BetterBuilder.class).fluentSet());
+                    if (!noBuilder) {
+                        // make sure there's an all args constructor.
+                        if (makeAllArgsConstructor) {
+                            makeConstructor(jcClassDecl, jcVariableDeclList);
+                        }
+                    }
+
+                    // todo builder opt
+
+                    // fluent
+                    makeFluent(jcClassDecl,
+                            jcVariableDeclList,
+                            e.getAnnotation(BetterBuilder.class).fluentGet(),
+                            e.getAnnotation(BetterBuilder.class).fluentSet());
+
+
+                    super.visitClassDef(jcClassDecl);
+                }
+            });
 
         }
+        // 如果返回是true的话，那么javac过程会再次重新从解析与填充符号表处开始进行
         return true;
     }
 
-
-    private void makeFluent(JCTree tree, String className, boolean get, boolean set) {
-        tree.accept(new TreeTranslator() {
-            @Override
-            public void visitClassDef(JCTree.JCClassDecl jcClassDecl) {
-                List<JCTree.JCVariableDecl> jcVariableDeclList = List.nil(); // EMPTY
-                for (JCTree jcTree : jcClassDecl.defs){
-                    if (jcTree.getKind().equals(Tree.Kind.VARIABLE)){
-                        JCTree.JCVariableDecl jcVariableDecl = (JCTree.JCVariableDecl) jcTree;
-                        jcVariableDeclList = jcVariableDeclList.append(jcVariableDecl);
-                    }
-                }
-
-                jcVariableDeclList.forEach(jcVariableDecl -> {
-                    messager.printMessage(Diagnostic.Kind.NOTE,jcVariableDecl.getName()+" is being processed to be fluent.");
-                    jcClassDecl.defs = jcClassDecl.defs.prependList(makeFluentMethodDecl(jcVariableDecl, names.fromString(className), get, set));
-                    messager.printMessage(Diagnostic.Kind.NOTE,jcVariableDecl.getName()+" done.");
-                });
-                super.visitClassDef(jcClassDecl);
-            }
-        });
+    private void makeFluent(JCTree.JCClassDecl jcClassDecl, List<JCTree.JCVariableDecl> jcVariableDeclList, boolean get, boolean set) {
+        // 这里顺序可以优化一下
+        for (JCTree.JCVariableDecl variableDecl : jcVariableDeclList) {
+            messager.printMessage(Diagnostic.Kind.NOTE,variableDecl.getName()+" is being processed to be fluent.");
+            jcClassDecl.defs = jcClassDecl.defs.prependList(makeFluentMethodDecl(variableDecl, get, set));
+            messager.printMessage(Diagnostic.Kind.NOTE,variableDecl.getName()+" done.");
+        }
     }
 
-    private List<JCTree> makeFluentMethodDecl(JCTree.JCVariableDecl variableDecl, Name className, boolean get, boolean set) {
+    private void makeConstructor(JCTree.JCClassDecl jcClassDecl, List<JCTree.JCVariableDecl> variableDecls) {
+        jcClassDecl.defs = jcClassDecl.defs.prepend(makeAllArgsConstructor(variableDecls));
+    }
+
+    private JCTree.JCMethodDecl makeAllArgsConstructor(List<JCTree.JCVariableDecl> variableDecls) {
+        ListBuffer<JCTree.JCStatement> statements = new ListBuffer<>();
+        ListBuffer<JCTree.JCVariableDecl> params = new ListBuffer<>();
+        for (JCTree.JCVariableDecl variable : variableDecls) {
+            Name name = variable.getName();
+            statements.append(makeAssignment(
+                    // selected：before . | selector：behind .
+                    treeMaker.Select(treeMaker.Ident(names.fromString("this")), name),
+                    treeMaker.Ident(name)
+            ));
+            treeMaker.pos = variable.pos;
+            params.append(treeMaker.VarDef(
+                    treeMaker.Modifiers(Flags.PARAMETER),
+                    name,
+                    variable.vartype, null));
+        }
+        JCTree.JCBlock block = treeMaker.Block(0L, statements.toList());
+
+        return treeMaker.MethodDef(treeMaker.Modifiers(Flags.PUBLIC),
+                names.fromString("<init>"),
+                treeMaker.Type(null),
+                List.nil(),
+                params.toList(),
+                List.nil(),
+                block,
+                null);
+    }
+
+    private List<JCTree> makeFluentMethodDecl(JCTree.JCVariableDecl variableDecl, boolean get, boolean set) {
         Name name = variableDecl.getName();
         ListBuffer<JCTree> methods = new ListBuffer<>();
         treeMaker.pos = variableDecl.pos;

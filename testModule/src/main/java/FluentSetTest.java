@@ -5,7 +5,7 @@ import cn.mpy634.annotion.BetterBuilder;
  * @date 2021/2/6
  * @desc first test: to test the fluentSet.
  */
-@BetterBuilder(fluentSet = true)
+@BetterBuilder(fluentSet = true, fluentGet = false)
 public class FluentSetTest {
 
     // 改为public是为测试需要
