@@ -4,22 +4,22 @@ better builder for Java beans.
 
 ## TODO LIST
 
-- [ ] fluent - builder
+- [ ] fluent - builder / test
 
-- [x] fluent - set / tested
+- [x] fluent - set / test
 
-- [x] fluent - get / tested
+- [x] fluent - get / test
 
-- [x] update set【return this or void】
+- [x] chain set options
 
-- [ ] ignore set / on field
+- [ ] ignore set
 
-- [ ] ignore get / on field
+- [ ] ignore get
 
-- [ ] ignore build / on field
+- [ ] ignore build
 
-- [ ] Exception info
+- [ ] exception info
 
-- [ ] 与lombok兼容
+- [ ] compatible with lombok
 
 ...
