@@ -2,6 +2,7 @@ package cn.mpy634.annotion;
 
 import cn.mpy634.constant.StrConstant;
 import cn.mpy634.utils.ElementUtils;
+import cn.mpy634.utils.JCTreeUtils;
 import com.sun.source.tree.Tree;
 import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Flags;
@@ -40,10 +41,6 @@ public class BetterBuilderProcessor extends AbstractProcessor {
     private TreeMaker treeMaker;
 
     private Names names;
-
-    private static final String BUILDER = "builder";
-
-    private static final String BUILD = "build";
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -85,9 +82,9 @@ public class BetterBuilderProcessor extends AbstractProcessor {
                         if (makeAllArgsConstructor) {
                             makeConstructor(jcClassDecl, jcVariableDeclList);
                         }
-                    }
 
-                    // todo builder opt
+                        // todo builder opt
+                    }
 
                     // fluent
                     makeFluent(jcClassDecl,
@@ -106,11 +103,10 @@ public class BetterBuilderProcessor extends AbstractProcessor {
     }
 
     private void makeFluent(JCTree.JCClassDecl jcClassDecl, List<JCTree.JCVariableDecl> jcVariableDeclList, boolean get, boolean set) {
-        // 这里顺序可以优化一下
         for (JCTree.JCVariableDecl variableDecl : jcVariableDeclList) {
-            messager.printMessage(Diagnostic.Kind.NOTE,variableDecl.getName()+" is being processed to be fluent.");
+//            messager.printMessage(Diagnostic.Kind.NOTE,variableDecl.getName()+" is being processed to be fluent.");
             jcClassDecl.defs = jcClassDecl.defs.prependList(makeFluentMethodDecl(variableDecl, get, set));
-            messager.printMessage(Diagnostic.Kind.NOTE,variableDecl.getName()+" done.");
+//            messager.printMessage(Diagnostic.Kind.NOTE,variableDecl.getName()+" done.");
         }
     }
 
@@ -123,12 +119,12 @@ public class BetterBuilderProcessor extends AbstractProcessor {
         ListBuffer<JCTree.JCVariableDecl> params = new ListBuffer<>();
         for (JCTree.JCVariableDecl variable : variableDecls) {
             Name name = variable.getName();
-            statements.append(makeAssignment(
-                    // selected：before . | selector：behind .
-                    treeMaker.Select(treeMaker.Ident(names.fromString("this")), name),
+            treeMaker.pos = variable.pos;
+            statements.append(JCTreeUtils.makeAssignment(
+                    treeMaker,
+                    makeSelect(StrConstant.THIS, name),
                     treeMaker.Ident(name)
             ));
-            treeMaker.pos = variable.pos;
             params.append(treeMaker.VarDef(
                     treeMaker.Modifiers(Flags.PARAMETER),
                     name,
@@ -151,9 +147,9 @@ public class BetterBuilderProcessor extends AbstractProcessor {
         ListBuffer<JCTree> methods = new ListBuffer<>();
         treeMaker.pos = variableDecl.pos;
         if (set) {
-            List<JCTree.JCStatement> statements = List.of(makeAssignment(
-                    // selected：before . | selector：behind .
-                    treeMaker.Select(treeMaker.Ident(names.fromString("this")), name),
+            List<JCTree.JCStatement> statements = List.of(JCTreeUtils.makeAssignment(
+                    treeMaker,
+                    makeSelect(StrConstant.THIS, name),
                     treeMaker.Ident(name)
             ));
             JCTree.JCBlock block =  treeMaker.Block(0L, statements);
@@ -179,7 +175,7 @@ public class BetterBuilderProcessor extends AbstractProcessor {
 
         if (get) {
             JCTree.JCBlock block =  treeMaker.Block(0L, List.of(
-                    treeMaker.Return(treeMaker.Select(treeMaker.Ident(names.fromString("this")), name))
+                    treeMaker.Return(makeSelect(StrConstant.THIS, name))
             ));
 
             methods.append(treeMaker.MethodDef(
@@ -195,16 +191,8 @@ public class BetterBuilderProcessor extends AbstractProcessor {
         return methods.toList();
     }
 
-
-    // 给变量赋值语句
-    private JCTree.JCExpressionStatement makeAssignment(JCTree.JCExpression lhs, JCTree.JCExpression rhs) {
-        // 创建可执行语句语法树节点
-        return treeMaker.Exec(
-                // assignment
-                treeMaker.Assign(
-                        lhs,
-                        rhs
-                )
-        );
+    private JCTree.JCExpression makeSelect(String l, Name r) {
+        return treeMaker.Select(treeMaker.Ident(names.fromString(l)), r);
     }
+
 }
