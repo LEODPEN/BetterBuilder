@@ -32,7 +32,13 @@ public @interface BetterBuilder {
     boolean fluentGet() default true;
 
     /**
-     * If only needs fluentGet or fluentSet operations, just make noBuilder = true
+     * case 0: the set methods return void. {default}
+     * case 1: the set methods return this. {chain set}
+     */
+    byte setType() default 0;
+
+    /**
+     * If needs fluentGet or fluentSet operations only, just make noBuilder = true
      */
     boolean noBuilder() default false;
 }

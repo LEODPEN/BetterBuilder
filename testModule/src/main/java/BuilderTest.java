@@ -8,7 +8,7 @@ import lombok.Builder;
  */
 
 //@Builder
-@BetterBuilder
+@BetterBuilder(setType = 1)
 public class BuilderTest {
 
     private String name;

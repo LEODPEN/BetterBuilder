@@ -10,7 +10,7 @@ better builder for Java beans.
 
 - [x] fluent - get / tested
 
-- [ ] update set【return this or void】
+- [x] update set【return this or void】
 
 - [ ] ignore set / on field
 
