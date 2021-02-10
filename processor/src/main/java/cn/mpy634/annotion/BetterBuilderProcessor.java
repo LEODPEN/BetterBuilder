@@ -16,6 +16,7 @@ import com.sun.tools.javac.util.*;
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import java.util.Set;
@@ -70,18 +71,12 @@ public class BetterBuilderProcessor extends AbstractProcessor {
                 @Override
                 public void visitClassDef(JCTree.JCClassDecl jcClassDecl) {
 
-                    List<JCTree.JCVariableDecl> jcVariableDeclList = List.nil(); // EMPTY
-                    for (JCTree jcTree : jcClassDecl.defs){
-                        if (jcTree.getKind().equals(Tree.Kind.VARIABLE)){
-                            JCTree.JCVariableDecl jcVariableDecl = (JCTree.JCVariableDecl) jcTree;
-                            jcVariableDeclList = jcVariableDeclList.append(jcVariableDecl);
-                        }
-                    }
+                    List<JCTree.JCVariableDecl> variableDeclList = getAllVariables(jcClassDecl);
 
                     if (!noBuilder) {
                         // make sure there's an all args constructor.
                         if (makeAllArgsConstructor) {
-                            makeConstructor(jcClassDecl, jcVariableDeclList);
+                            makeConstructor(jcClassDecl, variableDeclList);
                         }
 
                         // todo builder opt
@@ -89,7 +84,7 @@ public class BetterBuilderProcessor extends AbstractProcessor {
 
                     // fluent
                     makeFluent(jcClassDecl,
-                            jcVariableDeclList,
+                            variableDeclList,
                             bb.fluentGet(),
                             bb.fluentSet(),
                             bb.setType());
@@ -102,6 +97,20 @@ public class BetterBuilderProcessor extends AbstractProcessor {
         }
         // 如果返回是true的话，那么javac过程会再次重新从解析与填充符号表处开始进行
         return true;
+    }
+
+    private List<JCTree.JCVariableDecl> getAllVariables(JCTree.JCClassDecl jcClassDecl) {
+        ListBuffer<JCTree.JCVariableDecl> variableDecls = new ListBuffer<>();
+        for (JCTree jcTree : jcClassDecl.defs){
+            if (jcTree.getKind().equals(Tree.Kind.VARIABLE)){
+                variableDecls.append((JCTree.JCVariableDecl) jcTree);
+//                Set<Modifier> flagSets = jcVariableDecl.mods.getFlags();
+//                if (!flagSets.contains(Modifier.STATIC)) {
+//                    variableDecls.append(jcVariableDecl);
+//                }
+            }
+        }
+        return variableDecls.toList();
     }
 
     // 一个一个的来，为后续可能的ignore做准备
@@ -122,7 +131,7 @@ public class BetterBuilderProcessor extends AbstractProcessor {
         ListBuffer<JCTree> methods = new ListBuffer<>();
         treeMaker.pos = variableDecl.pos;
         if (set) {
-            methods.append(makeFluentSet(name, variableDecl.vartype, setType == 0 ? null : classType));
+            methods.append(makeFluentSet(name, variableDecl.vartype, setType == 0 ? classType : null));
         }
 
         if (get) {

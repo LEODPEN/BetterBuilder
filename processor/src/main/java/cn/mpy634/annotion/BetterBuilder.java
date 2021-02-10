@@ -32,8 +32,8 @@ public @interface BetterBuilder {
     boolean fluentGet() default true;
 
     /**
-     * case 0: the set methods return void. {default}
-     * case 1: the set methods return this. {chain set}
+     * case 0: the set methods return this. {chain set}
+     * case 1: the set methods return void.
      */
     byte setType() default 0;
 
