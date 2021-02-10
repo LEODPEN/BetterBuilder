@@ -1,4 +1,4 @@
-package cn.mpy634.annotion;
+package cn.mpy634.annotation;
 
 import cn.mpy634.constant.StrConstant;
 import cn.mpy634.utils.ElementUtils;
@@ -24,11 +24,11 @@ import java.util.Set;
  * @author LEO D PEN
  * @date 2021/2/6
  * @desc 可能问题1: https://stackoverflow.com/questions/38926255/maven-annotation-processing-processor-not-found
- *              2: 暂略
+ *              2: ...
  */
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@SupportedAnnotationTypes({"cn.mpy634.annotion.BetterBuilder"})
+@SupportedAnnotationTypes({"cn.mpy634.annotation.BetterBuilder"})
 public class BetterBuilderProcessor extends AbstractProcessor {
 
     // 编译时插入日志
@@ -75,7 +75,6 @@ public class BetterBuilderProcessor extends AbstractProcessor {
                         completeBuilder(jcClassDecl, variableDeclList, makeAllArgsConstructor);
                     }
 
-                    // fluent
                     makeFluent(jcClassDecl,
                             variableDeclList,
                             bb.fluentGet(),
@@ -86,7 +85,7 @@ public class BetterBuilderProcessor extends AbstractProcessor {
             });
 
         }
-        // 如果返回是true的话，那么javac过程会再次重新从解析与填充符号表处开始进行
+        // true -> javac过程再次重新从解析与填充符号表处开始进行
         return true;
     }
 
@@ -99,7 +98,7 @@ public class BetterBuilderProcessor extends AbstractProcessor {
         makeBuilderMethod(jcClassDecl, builderClassDecl);
     }
 
-    // 一个一个的来，为后续可能的ignore做准备
+    // preparation for @ignore
     private void makeFluent(JCTree.JCClassDecl jcClassDecl, List<JCTree.JCVariableDecl> variableDecls, boolean get, boolean set, byte setType) {
         for (JCTree.JCVariableDecl variableDecl : variableDecls) {
 //            messager.printMessage(Diagnostic.Kind.NOTE,variableDecl.getName()+" is being processed to be fluent.");
@@ -205,7 +204,6 @@ public class BetterBuilderProcessor extends AbstractProcessor {
                     null,
                     List.nil(),
                     classBody.toList()
-//                  List.nil()
         );
     }
 

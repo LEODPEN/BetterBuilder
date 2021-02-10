@@ -1,8 +1,6 @@
-import cn.mpy634.annotion.BetterBuilder;
+import cn.mpy634.annotation.BetterBuilder;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * @author LEO D PEN
@@ -12,9 +10,9 @@ import lombok.Setter;
 
 //@Builder
 //@Setter
+//@Builder
 @BetterBuilder(fluentGet = false, fluentSet = false)
 @Data
-//@Builder
 public class BuilderTest {
 
     private String name;

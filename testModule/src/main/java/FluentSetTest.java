@@ -1,4 +1,4 @@
-import cn.mpy634.annotion.BetterBuilder;
+import cn.mpy634.annotation.BetterBuilder;
 
 /**
  * @author LEO D PEN

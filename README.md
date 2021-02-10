@@ -18,8 +18,6 @@ better builder for Java beans.
 
 - [ ] ignore build
 
-- [ ] exception info
-
-- [ ] compatible with lombok
+- [x] compatible with lombok
 
 ...
