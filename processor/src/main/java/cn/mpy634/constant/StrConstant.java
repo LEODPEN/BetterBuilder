@@ -8,10 +8,11 @@ package cn.mpy634.constant;
 
 public interface StrConstant {
 
-                /******* prefix *******/
+                /******* prefix & suffix *******/
 
     String onlyClassPrefix = "Only classes can be annotated with ";
 
+    String builderSuffix = "Builder";
 
                 /******* method name *******/
 
@@ -21,4 +22,5 @@ public interface StrConstant {
 
                /******* var name *******/
     String THIS = "this";
+
 }

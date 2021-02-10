@@ -4,7 +4,7 @@ better builder for Java beans.
 
 ## TODO LIST
 
-- [ ] fluent - builder / test
+- [x] fluent - builder / test
 
 - [x] fluent - set / test
 

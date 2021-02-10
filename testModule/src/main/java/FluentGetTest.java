@@ -5,7 +5,7 @@ import cn.mpy634.annotion.BetterBuilder;
  * @date 2021/2/7
  * @desc
  */
-@BetterBuilder(fluentGet= true, fluentSet = false)
+@BetterBuilder(fluentGet= true, fluentSet = false, noBuilder = true)
 public class FluentGetTest {
 
     private int primitiveNum;
