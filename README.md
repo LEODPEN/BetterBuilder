@@ -14,14 +14,25 @@ which can make coding much more comfortable.
 
 ### Directly reach the jar
 
-download from [releases](https://github.com/LEODPEN/betterBuilder/releases).
-
+Download from [releases](https://github.com/LEODPEN/betterBuilder/releases).
+(Just add it to your classpath)
 ### Maven
 
+BetterBuilder(v1.0.1) has already been published to Central https://repo1.maven.org/maven2/.
+
+Example Maven settings:
+
+```xml
+<dependency>
+  <groupId>cn.mpy634</groupId>
+  <artifactId>BetterBuilder</artifactId>
+  <version>1.0.1</version>
+</dependency>
+```
 
 ## Usage
 
-> Simple example; [See how to customization]{#customization}.
+Simple example;[See how to customization]{#Customization}
  
 Given a class "Student":
 
@@ -63,13 +74,70 @@ You can customize the generated code.
 
 ### FluentSet switch
 
+Once make {fluentSet = false}, BetterBuilder will not generate set methods.
+```java
+@BetterBuilder(fluentSet = false)
+public class Student {
+    ...
+}
+```
+
 ### FluentGet switch
+
+Once make {fluentGet = false}, BetterBuilder will not generate get methods.
+```java
+@BetterBuilder(fluentGet = false)
+public class Student {
+    ...
+}
+```
 
 ### Set type
 
+Make {setType = 0 / 1} to change the return type of generated set methods.
+
+Given a field `private Integer ID;`, 2 kinds of set methods are available.
+
+When setType = 0, which is default(strongly suggested):
+```java
+@BetterBuilder(setType = 0)
+public class Student {
+    private Integer ID;
+    public Student ID(Integer ID){this.ID = ID; return this;}
+}
+```
+when setType = 1, set methods will return nothing:
+```java
+@BetterBuilder(setType = 1)
+public class Student {
+    private Integer ID;
+    public void ID(Integer ID){this.ID = ID;}
+}
+```
+
 ### NoBuilder switch
 
-### Field ignore
+Once make {noBuilder = true}, BetterBuilder will not generate builder methods (nor the allArgsConstructor).
+```java
+@BetterBuilder(noBuilder = true)
+public class Student {
+    ...
+}
+```
+
+### Field ignore (*todo*)
+
+Make any fields annotated with {@IgnoreGet or @IgnoreSet}, BetterBuilder will
+not generate the get or set method for it.
+```java
+@BetterBuilder
+public class Student {
+    @IgnoreGet
+    private Integer ID;
+}
+```
+It is for those fields that are not allowed to change after 
+initialization.
 
 
 ## Todo list
@@ -91,3 +159,5 @@ You can customize the generated code.
 - [x] compatible with lombok
 
 ...
+
+## Extra info
