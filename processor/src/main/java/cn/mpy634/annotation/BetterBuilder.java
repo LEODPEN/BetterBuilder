@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * BetterBuilder{repo @link https://github.com/LEODPEN/betterBuilder}
- * An annotation to generate better builder codes with <strong>fluent<strong/>
+ * An annotation to generate better builder codes with fluent
  * get/set methods, which can make coding much more comfortable.
  *
  * 0. Usage
@@ -18,6 +18,7 @@ import java.lang.annotation.Target;
  *          private String name;
  *          private Integer ID;
  *      }
+ * }</pre>
  * Then we can code in a fluent style --
  * <pre>{@code
  *      Stu stu = Stu.builder().ID(xx).name(xx)....build().ID(xx).name(xx)...
@@ -38,8 +39,8 @@ import java.lang.annotation.Target;
  *      @Data
  *      public class Stu {
  *      ...}
+ *      }</pre>
  *      However, there's no need to do so.
- * }</pre>
  *
  * @author LEO D PEN
  * @date 2021/2/6
