@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * BetterBuilder{repo @link https://github.com/LEODPEN/betterBuilder}
- * An annotation to generate better builder codes with <strong>Fluent<strong/>
+ * An annotation to generate better builder codes with <strong>fluent<strong/>
  * get/set methods, which can make coding much more comfortable.
  *
  * 0. Usage
