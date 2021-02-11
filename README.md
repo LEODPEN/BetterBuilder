@@ -8,18 +8,18 @@ BetterBuilder is a [Java annotation processor](https://docs.oracle.com/javase/8/
 automatically generating better builder codes([builder design pattern](https://en.wikipedia.org/wiki/Builder_pattern#Java)) with fluent get/set methods, 
 which can make coding much more comfortable.
 
-### Getting BetterBuilder
+## Getting BetterBuilder
 
 > BetterBuilder doesn't add any runtime dependencies to your code.
 
-#### Directly reach the jar
+### Directly reach the jar
 
 download from [releases](https://github.com/LEODPEN/betterBuilder/releases).
 
-#### Maven
+### Maven
 
 
-### Usage
+## Usage
 
 > Simple example; [See how to customization]{#customization}.
  
@@ -59,22 +59,20 @@ public class Student {
 
 You can customize the generated code.
 
-### Customization
+## Customization
 
-#### FluentSet switch
+### FluentSet switch
 
-#### FluentGet switch
+### FluentGet switch
 
-#### Set type
+### Set type
 
-#### NoBuilder switch
+### NoBuilder switch
 
-#### Field ignore
+### Field ignore
 
 
-### Todo list
-
----
+## Todo list
 
 - [x] fluent - builder / test
 

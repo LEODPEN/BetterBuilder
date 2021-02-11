@@ -18,7 +18,7 @@
     <dependencies>
         <dependency>
             <groupId>cn.mpy634</groupId>
-            <artifactId>better-builder-core</artifactId>
+            <artifactId>BetterBuilder</artifactId>
             <version>1.0.1-SNAPSHOT</version>
         </dependency>
 
