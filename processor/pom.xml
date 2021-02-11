@@ -12,7 +12,7 @@
     <description>1024</description>
     <url>https://github.com/LEODPEN/BetterBuilder</url>
     <artifactId>BetterBuilder</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <licenses>
         <license>
@@ -32,8 +32,7 @@
     </developers>
 
     <scm>
-        <url>https://github.com/LEODPEN/BetterBuilder</url>
-        <tag>BetterBuilder-1.0.1</tag>
+        <url>scm:git:https://github.com/LEODPEN/BetterBuilder</url>
     </scm>
 
     <build>
