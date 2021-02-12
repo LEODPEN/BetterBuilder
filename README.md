@@ -67,9 +67,10 @@ public class Student {
     }
 }
 ```
+Therefore you can code like `Student stu = Student.builder().ID(xx).name(xx)....build().ID(xx).name(xx)...` .
 
-You can customize the generated code.
-
+You can also customize the generated code.
+ 
 ## Customization
 
 ### FluentSet switch
@@ -132,31 +133,35 @@ not generate the get or set method for it.
 ```java
 @BetterBuilder
 public class Student {
+    @IgnoreSet
+    private String 牛;
+    
     @IgnoreGet
-    private Integer ID;
+    private Integer 年;
+  
+    @IgnoreGet
+    @IgnoreSet
+    private Student 大;
+
+    private List<Boolean> 吉;
+    
 }
 ```
-It is for those fields that are not allowed to change after 
+It is for those fields that aren't allowed to be changed or accessed after 
 initialization.
 
 
 ## Todo list
 
 - [x] fluent - builder / test
-
+    - [x] noBuilder
 - [x] fluent - set / test
-
+    - [x] chain set options
+    - [x] ignore set
 - [x] fluent - get / test
-
-- [x] chain set options
-
-- [ ] ignore set
-
-- [ ] ignore get
-
-- [ ] ignore build
-
+    - [x] ignore get
 - [x] compatible with lombok
+- [ ] type-safe builder / @Required for certain fields 
 
 ...
 

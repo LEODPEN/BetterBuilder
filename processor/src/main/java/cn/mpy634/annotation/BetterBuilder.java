@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
  * <pre>{@code
  *      Stu stu = Stu.builder().ID(xx).name(xx)....build().ID(xx).name(xx)...
  *  }</pre>
- *
+ * More examples see { @link https://github.com/LEODPEN/BetterBuilder/blob/main/README.md }
  * 1. Some extra instructions
  *   1.0 Pos
  *      Only classes can be annotated with BetterBuilder;
@@ -44,7 +44,7 @@ import java.lang.annotation.Target;
  *
  * @author LEO D PEN
  * @date 2021/2/6
- * @desc @BetterBuilder 1.0.1
+ * @desc {@link BetterBuilder @since 1.0.1} supposed to be placed on class.
  *
  */
 
@@ -52,8 +52,17 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface BetterBuilder {
 
+    /**
+     * Allows {@link BetterBuilder} to generate fluent set methods for all the fields.
+     * Want to change the return type @see {@link #setType()}.
+     * Want to ignore certain fields @see {@link IgnoreSet}.
+     */
     boolean fluentSet() default true;
 
+    /**
+     * Allows {@link BetterBuilder} to generate fluent get methods for all the fields.
+     * Want to ignore certain fields @see {@link IgnoreGet}
+     */
     boolean fluentGet() default true;
 
     /**
@@ -66,4 +75,28 @@ public @interface BetterBuilder {
      * If needs fluentGet or fluentSet operations only, just make noBuilder = true
      */
     boolean noBuilder() default false;
+
+    /**
+     * Annotation that ignores the given fields of a class when generating set method codes for that class.
+     * Used when {@link BetterBuilder} is placed on the class.
+     *
+     * @since 1.0.2
+     * @see BetterBuilder
+     */
+    @Target(ElementType.FIELD)
+    @Retention(RetentionPolicy.SOURCE)
+    @interface IgnoreSet {
+    }
+
+    /**
+     * Annotation that ignores the given fields of a class when generating get method codes for that class.
+     * Used when {@link BetterBuilder} is placed on the class.
+     *
+     * @since 1.0.2
+     * @see BetterBuilder
+     */
+    @Target(ElementType.FIELD)
+    @Retention(RetentionPolicy.SOURCE)
+    @interface IgnoreGet {
+    }
 }

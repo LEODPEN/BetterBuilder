@@ -9,11 +9,11 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <name>BetterBuilder</name>
-    <description>1024</description>
+    <description>A Java annotation processor used for automatically generating better builder codes with fluent get/set methods.</description>
     <url>https://github.com/LEODPEN/BetterBuilder</url>
     <packaging>jar</packaging>
     <artifactId>BetterBuilder</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 
     <licenses>
         <license>

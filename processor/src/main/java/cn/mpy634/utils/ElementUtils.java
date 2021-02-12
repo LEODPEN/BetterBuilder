@@ -1,7 +1,10 @@
 package cn.mpy634.utils;
 
+import cn.mpy634.annotation.BetterBuilder;
+
 import javax.lang.model.element.*;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,6 +52,24 @@ public class ElementUtils {
                 .filter(elm -> elm.getKind().equals(ElementKind.FIELD))
                 .map(elm -> (VariableElement) elm)
                 .collect(Collectors.toList());
+    }
+
+    public static Set<String>[] getIgnoreFields(Element classElement) {
+        List<VariableElement> fields = getFields(classElement);
+        Set<String>[] ignore = new Set[2];
+        Set<String> ignoreGet = new HashSet<>();
+        Set<String> ignoreSet = new HashSet<>();
+        ignore[0] = ignoreGet; ignore[1] = ignoreSet;
+        for (VariableElement vlm : fields) {
+            if (!vlm.getModifiers().contains(Modifier.STATIC)) {
+                BetterBuilder.IgnoreGet ig = vlm.getAnnotation(BetterBuilder.IgnoreGet.class);
+                BetterBuilder.IgnoreSet is = vlm.getAnnotation(BetterBuilder.IgnoreSet.class);
+                String name = vlm.getSimpleName().toString();
+                if (ig != null) ignoreGet.add(name);
+                if (is != null) ignoreSet.add(name);
+            }
+        }
+        return ignore;
     }
 
 }

@@ -6,7 +6,7 @@ import cn.mpy634.annotation.BetterBuilder;
  * @desc
  */
 @BetterBuilder(fluentGet= true, fluentSet = false, noBuilder = true)
-public class FluentGetTest {
+public class FluentGet {
 
     private int primitiveNum;
 
@@ -14,13 +14,13 @@ public class FluentGetTest {
 
     private String name;
 
-    private FluentSetTest fluentSetTest;
+    private FluentSet fluentSet;
 
-    public FluentGetTest(int primitiveNum, Integer boxedNum, String name, FluentSetTest fluentSetTest) {
+    public FluentGet(int primitiveNum, Integer boxedNum, String name, FluentSet fluentSet) {
         this.primitiveNum = primitiveNum;
         this.boxedNum = boxedNum;
         this.name = name;
-        this.fluentSetTest = fluentSetTest;
+        this.fluentSet = fluentSet;
     }
 
 }

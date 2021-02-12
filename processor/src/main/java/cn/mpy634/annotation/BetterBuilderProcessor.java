@@ -64,6 +64,7 @@ public class BetterBuilderProcessor extends AbstractProcessor {
             JCTree tree = javacTrees.getTree(e);
             BetterBuilder bb = e.getAnnotation(BetterBuilder.class);
             boolean makeAllArgsConstructor = !ElementUtils.hasAllArgsConstructor(e, e.getModifiers());
+            Set<String>[] fieldIgnore = ElementUtils.getIgnoreFields(e);
             boolean noBuilder = bb.noBuilder();
             tree.accept(new TreeTranslator() {
                 @Override
@@ -77,6 +78,7 @@ public class BetterBuilderProcessor extends AbstractProcessor {
 
                     makeFluent(jcClassDecl,
                             variableDeclList,
+                            fieldIgnore,
                             bb.fluentGet(),
                             bb.fluentSet(),
                             bb.setType());
@@ -99,12 +101,20 @@ public class BetterBuilderProcessor extends AbstractProcessor {
     }
 
     // preparation for @ignore
-    private void makeFluent(JCTree.JCClassDecl jcClassDecl, List<JCTree.JCVariableDecl> variableDecls, boolean get, boolean set, byte setType) {
+    private void makeFluent(JCTree.JCClassDecl jcClassDecl, List<JCTree.JCVariableDecl> variableDecls, Set<String>[] ignore, boolean get, boolean set, byte setType) {
+        JCTree.JCIdent classType = treeMaker.Ident(jcClassDecl.name);
+        ListBuffer<JCTree> methods = new ListBuffer<>();
         for (JCTree.JCVariableDecl variableDecl : variableDecls) {
-//            messager.printMessage(Diagnostic.Kind.NOTE,variableDecl.getName()+" is being processed to be fluent.");
-            jcClassDecl.defs = jcClassDecl.defs.prependList(makeFluentMethodDecl(variableDecl, get, set, setType, treeMaker.Ident(jcClassDecl.name)));
-//            messager.printMessage(Diagnostic.Kind.NOTE,variableDecl.getName()+" done.");
+            Name name = variableDecl.getName();
+            treeMaker.pos = variableDecl.pos;
+            if (set && !ignore[1].contains(name.toString())) {
+                methods.append(makeFluentSet(name, variableDecl.vartype, setType == 0 ? classType : null));
+            }
+            if (get && !ignore[0].contains(name.toString())) {
+                methods.append(makeFluentGet(name, variableDecl.vartype));
+            }
         }
+        jcClassDecl.defs = jcClassDecl.defs.prependList(methods.toList());
     }
 
     private void makeConstructor(JCTree.JCClassDecl jcClassDecl, List<JCTree.JCVariableDecl> variableDecls) {
@@ -207,19 +217,6 @@ public class BetterBuilderProcessor extends AbstractProcessor {
         );
     }
 
-    private List<JCTree> makeFluentMethodDecl(JCTree.JCVariableDecl variableDecl, boolean get, boolean set, byte setType, JCTree.JCIdent classType) {
-        Name name = variableDecl.getName();
-        ListBuffer<JCTree> methods = new ListBuffer<>();
-        treeMaker.pos = variableDecl.pos;
-        if (set) {
-            methods.append(makeFluentSet(name, variableDecl.vartype, setType == 0 ? classType : null));
-        }
-
-        if (get) {
-            methods.append(makeFluentGet(name, variableDecl.vartype));
-        }
-        return methods.toList();
-    }
 
     private JCTree.JCMethodDecl makeFluentGet(Name fieldName, JCTree.JCExpression fieldType) {
         JCTree.JCBlock block =  treeMaker.Block(0L, List.of(

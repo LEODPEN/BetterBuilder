@@ -6,7 +6,7 @@ import cn.mpy634.annotation.BetterBuilder;
  * @desc first test: to test the fluentSet.
  */
 @BetterBuilder(fluentSet = true, fluentGet = false, noBuilder = true)
-public class FluentSetTest {
+public class FluentSet {
 
     // 改为public是为测试需要
     public Long id;
@@ -15,9 +15,9 @@ public class FluentSetTest {
 
     public Integer num;
 
-    public FluentSetTest() {}
+    public FluentSet() {}
 
-    public FluentSetTest(Long id, String name, Integer num) {
+    public FluentSet(Long id, String name, Integer num) {
         this.id = id;
         this.name = name;
         this.num = num;
