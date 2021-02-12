@@ -2,7 +2,7 @@
 
 [![GitHub license](https://img.shields.io/github/license/LEODPEN/BetterBuilder)](https://github.com/LEODPEN/BetterBuilder/blob/main/LICENSE) 
 ![Build status](https://img.shields.io/badge/build-passing-brightgreen)
-[![Version](https://img.shields.io/badge/version-1.0.1-orange)](https://github.com/LEODPEN/BetterBuilder/releases)
+[![Version](https://img.shields.io/badge/version-1.0.2-orange)](https://github.com/LEODPEN/BetterBuilder/releases)
 ---
 BetterBuilder is a [Java annotation processor](https://docs.oracle.com/javase/8/docs/api/javax/annotation/processing/Processor.html) used for
 automatically generating better builder codes([builder design pattern](https://en.wikipedia.org/wiki/Builder_pattern#Java)) with fluent get/set methods, 
@@ -26,13 +26,14 @@ Example Maven settings:
 <dependency>
   <groupId>cn.mpy634</groupId>
   <artifactId>BetterBuilder</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
+  <scope>provided</scope>
 </dependency>
 ```
 
 ## Usage
 
-Simple example;[See how to customization]{#Customization}
+> Simple example;[See how to customization](#customization)
  
 Given a class "Student":
 
@@ -126,7 +127,7 @@ public class Student {
 }
 ```
 
-### Field ignore (*todo*)
+### Field ignore
 
 Make any fields annotated with {@IgnoreGet or @IgnoreSet}, BetterBuilder will
 not generate the get or set method for it.
@@ -165,4 +166,6 @@ initialization.
 
 ...
 
-## Extra info
+## Others
+
++ Any bugs or suggestions? Plz make PRs or [issues](https://github.com/LEODPEN/BetterBuilder/issues).
