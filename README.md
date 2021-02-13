@@ -18,7 +18,7 @@ Download from [releases](https://github.com/LEODPEN/betterBuilder/releases).
 (Just add it to your classpath)
 ### Maven
 
-BetterBuilder(v1.0.1) has already been published to Central https://repo1.maven.org/maven2/.
+BetterBuilder(v1.0.2) has already been published to Central https://repo1.maven.org/maven2/.
 
 Example Maven settings:
 
@@ -33,7 +33,7 @@ Example Maven settings:
 
 ## Usage
 
-> Simple example;[See how to customization](#customization)
+> Simple example;[See how to customize](#customization)
  
 Given a class "Student":
 
@@ -136,20 +136,17 @@ not generate the get or set method for it.
 public class Student {
     @IgnoreSet
     private String 牛;
-    
     @IgnoreGet
     private Integer 年;
-  
     @IgnoreGet
     @IgnoreSet
     private Student 大;
-
     private List<Boolean> 吉;
     
 }
 ```
-It is for those fields that aren't allowed to be changed or accessed after 
-initialization.
+It is for those **fields that aren't allowed to be changed or accessed after 
+initialization**.
 
 
 ## Todo list
