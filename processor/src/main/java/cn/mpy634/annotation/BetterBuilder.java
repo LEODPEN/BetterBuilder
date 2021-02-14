@@ -1,5 +1,7 @@
 package cn.mpy634.annotation;
 
+import cn.mpy634.enums.BuilderType;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -45,6 +47,7 @@ import java.lang.annotation.Target;
  * @author LEO D PEN
  * @date 2021/2/6
  * @desc {@link BetterBuilder @since 1.0.1} supposed to be placed on class.
+ * @since 1.0.1
  *
  */
 
@@ -72,9 +75,11 @@ public @interface BetterBuilder {
     byte setType() default 0;
 
     /**
-     * If needs fluentGet or fluentSet operations only, just make noBuilder = true
+     * The builder type that BetterBuilder will generate.
+     * @see cn.mpy634.enums.BuilderType
+     * @since 1.0.3
      */
-    boolean noBuilder() default false;
+    BuilderType BUILDER_TYPE() default BuilderType.CLASSIC;
 
     /**
      * Annotation that ignores the given fields of a class when generating set method codes for that class.

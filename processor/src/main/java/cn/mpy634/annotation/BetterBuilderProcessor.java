@@ -1,11 +1,14 @@
 package cn.mpy634.annotation;
 
 import cn.mpy634.constant.StrConstant;
+import cn.mpy634.enums.BuilderType;
+import cn.mpy634.factory.BuilderFactory;
+import cn.mpy634.factory.ClassicBuilderFactory;
+import cn.mpy634.factory.NoBuilderFactory;
+import cn.mpy634.factory.TypeSafeBuilderFactory;
 import cn.mpy634.utils.ElementUtils;
 import cn.mpy634.utils.JCTreeUtils;
 import com.sun.tools.javac.api.JavacTrees;
-import com.sun.tools.javac.code.Flags;
-import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.processing.JavacProcessingEnvironment;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeMaker;
@@ -41,6 +44,8 @@ public class BetterBuilderProcessor extends AbstractProcessor {
 
     private Names names;
 
+    private BuilderFactory builderFactory;
+
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
@@ -65,23 +70,19 @@ public class BetterBuilderProcessor extends AbstractProcessor {
             BetterBuilder bb = e.getAnnotation(BetterBuilder.class);
             boolean makeAllArgsConstructor = !ElementUtils.hasAllArgsConstructor(e, e.getModifiers());
             Set<String>[] fieldIgnore = ElementUtils.getIgnoreFields(e);
-            boolean noBuilder = bb.noBuilder();
+            builderFactory = whichFactory(bb.BUILDER_TYPE());
+            // todo 找到@required 结合factory 和 ElementUtils
+            builderFactory.dealRequiredFields(e);
             tree.accept(new TreeTranslator() {
                 @Override
                 public void visitClassDef(JCTree.JCClassDecl jcClassDecl) {
 
                     List<JCTree.JCVariableDecl> variableDeclList = JCTreeUtils.getAllVariables(jcClassDecl);
+                    builderFactory.setJcClassDecl(jcClassDecl);
+                    builderFactory.setVariableDecls(variableDeclList);
 
-                    if (!noBuilder) {
-                        completeBuilder(jcClassDecl, variableDeclList, makeAllArgsConstructor);
-                    }
+                    builderFactory.completeBetterBuilder(makeAllArgsConstructor, fieldIgnore, bb.fluentGet(), bb.fluentSet(), bb.setType());
 
-                    makeFluent(jcClassDecl,
-                            variableDeclList,
-                            fieldIgnore,
-                            bb.fluentGet(),
-                            bb.fluentSet(),
-                            bb.setType());
 //                    super.visitClassDef(jcClassDecl); // stackOverFlow
                 }
             });
@@ -91,239 +92,16 @@ public class BetterBuilderProcessor extends AbstractProcessor {
         return true;
     }
 
-    private void completeBuilder(JCTree.JCClassDecl jcClassDecl, List<JCTree.JCVariableDecl> variableDecls, boolean makeAllArgsConstructor) {
-        // make sure there's an all args constructor.
-        if (makeAllArgsConstructor) {
-            makeConstructor(jcClassDecl, variableDecls);
+    private BuilderFactory whichFactory(BuilderType type) {
+        switch (type) {
+            case CLASSIC:
+                return new ClassicBuilderFactory(treeMaker, names);
+            case NO_BUILDER:
+                return new NoBuilderFactory(treeMaker, names);
+            case TYPE_SAFE:
+                return new TypeSafeBuilderFactory(treeMaker, names);
+            default:
+                throw new IllegalArgumentException("invalid type");
         }
-        JCTree.JCClassDecl builderClassDecl = makeBuilder(jcClassDecl, variableDecls);
-        makeBuilderMethod(jcClassDecl, builderClassDecl);
     }
-
-    // preparation for @ignore
-    private void makeFluent(JCTree.JCClassDecl jcClassDecl, List<JCTree.JCVariableDecl> variableDecls, Set<String>[] ignore, boolean get, boolean set, byte setType) {
-        JCTree.JCIdent classType = treeMaker.Ident(jcClassDecl.name);
-        ListBuffer<JCTree> methods = new ListBuffer<>();
-        for (JCTree.JCVariableDecl variableDecl : variableDecls) {
-            Name name = variableDecl.getName();
-            treeMaker.pos = variableDecl.pos;
-            if (set && !ignore[1].contains(name.toString())) {
-                methods.append(makeFluentSet(name, variableDecl.vartype, setType == 0 ? classType : null));
-            }
-            if (get && !ignore[0].contains(name.toString())) {
-                methods.append(makeFluentGet(name, variableDecl.vartype));
-            }
-        }
-        jcClassDecl.defs = jcClassDecl.defs.prependList(methods.toList());
-    }
-
-    private void makeConstructor(JCTree.JCClassDecl jcClassDecl, List<JCTree.JCVariableDecl> variableDecls) {
-        jcClassDecl.defs = jcClassDecl.defs.prepend(makeAllArgsConstructor(variableDecls));
-    }
-
-    private void makeBuilderMethod(JCTree.JCClassDecl outerClass, JCTree.JCClassDecl innerClass) {
-        List<JCTree.JCStatement> statements = List.of(
-                treeMaker.Return(
-                        treeMaker.NewClass(
-                                null,
-                                List.nil(),
-                                treeMaker.Ident(innerClass.name),
-                                List.nil(),
-                                null
-                        )
-                )
-        );
-        JCTree.JCMethodDecl builder = treeMaker.MethodDef(
-                    treeMaker.Modifiers(Flags.PUBLIC | Flags.STATIC),
-                    names.fromString(StrConstant.BUILDER),
-                    treeMaker.Ident(innerClass.name),
-                    List.nil(),
-                    List.nil(),
-                    List.nil(),
-                    treeMaker.Block(0L, statements),
-                    null
-        );
-        outerClass.defs = outerClass.defs.prepend(builder);
-    }
-
-    private JCTree.JCClassDecl makeBuilder(JCTree.JCClassDecl jcClassDecl, List<JCTree.JCVariableDecl> variableDecls) {
-        Name builderClassName = names.fromString(jcClassDecl.name.toString() + StrConstant.builderSuffix);
-        List<JCTree.JCVariableDecl> builderFields = copyFields(variableDecls);
-        JCTree.JCMethodDecl constructor = makeNoArgsConstructor();
-
-        ListBuffer<JCTree.JCMethodDecl> setters = new ListBuffer<>();
-        for (JCTree.JCVariableDecl var : builderFields) {
-            // todo @required
-            treeMaker.pos = var.pos;
-            setters.append(makeFluentSet(var.name, var.vartype, treeMaker.Ident(builderClassName)));
-        }
-        JCTree.JCMethodDecl buildMethod = makeBuildMethod(jcClassDecl, builderFields);
-
-        JCTree.JCClassDecl builderClass = makeBuilderClass(builderClassName,
-                    builderFields,
-                    constructor,
-                    setters.toList(),
-                    buildMethod);
-        jcClassDecl.defs = jcClassDecl.defs.append(builderClass);
-        return builderClass;
-    }
-
-    private JCTree.JCMethodDecl makeBuildMethod(JCTree.JCClassDecl toBuildClass, List<JCTree.JCVariableDecl> variableDecls) {
-        JCTree.JCExpression returnType = treeMaker.Ident(toBuildClass.name);
-        ListBuffer<JCTree.JCExpression> argsType = new ListBuffer<>();
-        ListBuffer<JCTree.JCExpression> args = new ListBuffer<>();
-        for (JCTree.JCVariableDecl variableDecl : variableDecls) {
-            args.append(makeSelect(StrConstant.THIS, variableDecl.name));
-            argsType.append(variableDecl.vartype);
-        }
-        List<JCTree.JCStatement> statements = List.of(
-          treeMaker.Return(
-                  treeMaker.NewClass(
-                    null,
-                    argsType.toList(),
-                    returnType,
-                    args.toList(),
-                    null
-          ))
-        );
-        return treeMaker.MethodDef(
-                    treeMaker.Modifiers(Flags.PUBLIC),
-                    names.fromString(StrConstant.BUILD),
-                    returnType,
-                    List.nil(),
-                    List.nil(),
-                    List.nil(),
-                    treeMaker.Block(0L, statements),
-                    null
-                );
-    }
-
-
-    private JCTree.JCClassDecl makeBuilderClass(Name className, List<JCTree.JCVariableDecl> fields,
-                                                       JCTree.JCMethodDecl constructor, List<JCTree.JCMethodDecl> setters,
-                                                       JCTree.JCMethodDecl buildMethod) {
-        ListBuffer<JCTree> classBody = new ListBuffer<>();
-        classBody.appendList(List.convert(JCTree.class, fields))
-                .append(constructor)
-                .appendList(List.convert(JCTree.class, setters))
-                .append(buildMethod);
-        return treeMaker.ClassDef(
-                    treeMaker.Modifiers(Flags.PUBLIC | Flags.STATIC),
-                    className,
-                    List.nil(),
-                    null,
-                    List.nil(),
-                    classBody.toList()
-        );
-    }
-
-
-    private JCTree.JCMethodDecl makeFluentGet(Name fieldName, JCTree.JCExpression fieldType) {
-        JCTree.JCBlock block =  treeMaker.Block(0L, List.of(
-                treeMaker.Return(makeSelect(StrConstant.THIS, fieldName))
-        ));
-
-        return treeMaker.MethodDef(
-                    treeMaker.Modifiers(Flags.PUBLIC),
-                    fieldName,
-                    fieldType,
-                    List.nil(),
-                    List.nil(),
-                    List.nil(),
-                    block,
-                    null);
-    }
-
-    private JCTree.JCMethodDecl makeFluentSet(Name fieldName, JCTree.JCExpression fieldType, JCTree.JCExpression returnType) {
-
-        List<JCTree.JCStatement> statements = List.of(JCTreeUtils.makeAssignment(
-                treeMaker,
-                makeSelect(StrConstant.THIS, fieldName),
-                treeMaker.Ident(fieldName)
-        ));
-        if (returnType != null) {
-            statements = statements.append(treeMaker.Return(treeMaker.Ident(names.fromString(StrConstant.THIS))));
-        }
-        JCTree.JCBlock block = treeMaker.Block(0L, statements);
-
-        // params
-        List<JCTree.JCVariableDecl> params = List.of(
-                treeMaker.VarDef(
-                        treeMaker.Modifiers(Flags.PARAMETER),
-                        fieldName,
-                        fieldType, null)
-        );
-
-        return treeMaker.MethodDef(
-                    treeMaker.Modifiers(Flags.PUBLIC),
-                    fieldName,
-                    returnType == null ? treeMaker.Type(new Type.JCVoidType()) : returnType,
-                    List.nil(),
-                    params,
-                    List.nil(),
-                    block,
-                    null);
-    }
-
-    private JCTree.JCMethodDecl makeAllArgsConstructor(List<JCTree.JCVariableDecl> variableDecls) {
-        ListBuffer<JCTree.JCStatement> statements = new ListBuffer<>();
-        ListBuffer<JCTree.JCVariableDecl> params = new ListBuffer<>();
-        for (JCTree.JCVariableDecl variable : variableDecls) {
-            Name name = variable.getName();
-            treeMaker.pos = variable.pos;
-            statements.append(JCTreeUtils.makeAssignment(
-                    treeMaker,
-                    makeSelect(StrConstant.THIS, name),
-                    treeMaker.Ident(name)
-            ));
-            params.append(treeMaker.VarDef(
-                    treeMaker.Modifiers(Flags.PARAMETER),
-                    name,
-                    variable.vartype, null));
-        }
-        JCTree.JCBlock block = treeMaker.Block(0L, statements.toList());
-
-        return treeMaker.MethodDef(treeMaker.Modifiers(Flags.PUBLIC),
-                    names.fromString("<init>"),
-                    treeMaker.Type(null),
-                    List.nil(),
-                    params.toList(),
-                    List.nil(),
-                    block,
-                    null);
-    }
-
-    // for builder, must private
-    private JCTree.JCMethodDecl makeNoArgsConstructor() {
-        return treeMaker.MethodDef(
-                    treeMaker.Modifiers(Flags.PRIVATE),
-                    names.fromString("<init>"),
-                    treeMaker.Type(null),
-                    List.nil(),
-                    List.nil(),
-                    List.nil(),
-                    treeMaker.Block(0L, List.nil()),
-                    null);
-    }
-
-    private List<JCTree.JCVariableDecl> copyFields(List<JCTree.JCVariableDecl> sourceFields) {
-        ListBuffer<JCTree.JCVariableDecl> targetFields = new ListBuffer<>();
-        sourceFields.stream()
-                .map(e -> {
-                    JCTree.JCVariableDecl v = treeMaker.VarDef(
-                            treeMaker.Modifiers(Flags.PRIVATE),
-                            names.fromString(e.name.toString()),
-                            e.vartype,
-                            null
-                    );
-                    v.pos = e.pos;
-                    return v;
-                }).forEach(targetFields::append);
-        return targetFields.toList();
-    }
-
-    private JCTree.JCExpression makeSelect(String l, Name r) {
-        return treeMaker.Select(treeMaker.Ident(names.fromString(l)), r);
-    }
-
 }

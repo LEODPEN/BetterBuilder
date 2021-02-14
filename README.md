@@ -142,7 +142,6 @@ public class Student {
     @IgnoreSet
     private Student 大;
     private List<Boolean> 吉;
-    
 }
 ```
 It is for those **fields that aren't allowed to be changed or accessed after 

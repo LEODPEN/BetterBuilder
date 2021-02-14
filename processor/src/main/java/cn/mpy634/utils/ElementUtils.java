@@ -72,4 +72,10 @@ public class ElementUtils {
         return ignore;
     }
 
+    public static List<String> constructTypeSaleList(Element e) {
+        List<VariableElement> fields = getFields(e);
+        // todo
+        return null;
+    }
+
 }
