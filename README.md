@@ -21,7 +21,7 @@ which can make coding much more comfortable.
 
 ## Getting BetterBuilder
 
-> BetterBuilder doesn't add any runtime dependencies to your code.
+> BetterBuilder doesn't add any runtime dependencies to your codes.
 
 ### Directly reach the jar
 
@@ -44,7 +44,7 @@ Example Maven settings:
 
 ## Usage
 
-> Simple example;[See how to customize](#customization)
+> Simple example; [See how to customize](#customization)
  
 Given a class "Student":
 
@@ -79,15 +79,17 @@ public class Student {
     }
 }
 ```
-Therefore you can code like `Student stu = Student.builder().ID(xx).name(xx)....build().ID(xx).name(xx)...` .
+Therefore you can code like 
 
-You can also customize the generated code.
+`Student stu = Student.builder().ID(xx).name(xx)....build().ID(xx).name(xx)...` .
+
+You can also customize BetterBuilder.
  
 ## Customization
 
 ### FluentSet switch
 
-Once make {fluentSet = false}, BetterBuilder will not generate set methods.
+Once make `fluentSet = false`, BetterBuilder will not generate set methods.
 ```java
 @BetterBuilder(fluentSet = false)
 public class Student {
@@ -97,7 +99,7 @@ public class Student {
 
 ### FluentGet switch
 
-Once make {fluentGet = false}, BetterBuilder will not generate get methods.
+Once make `fluentGet = false`, BetterBuilder will not generate get methods.
 ```java
 @BetterBuilder(fluentGet = false)
 public class Student {
@@ -107,11 +109,11 @@ public class Student {
 
 ### Set type
 
-Make {setType = 0 / 1} to change the return type of generated set methods.
+Make `setType = 0 / 1` to change the return type of generated set methods.
 
 Given a field `private Integer ID;`, 2 kinds of set methods are available.
 
-When setType = 0, which is default(strongly suggested):
+When `setType = 0`, which is default( strongly suggested ):
 ```java
 @BetterBuilder(setType = 0)
 public class Student {
@@ -119,7 +121,7 @@ public class Student {
     public Student ID(Integer ID){this.ID = ID; return this;}
 }
 ```
-when setType = 1, set methods will return nothing:
+when `setType = 1`, set methods will return nothing:
 ```java
 @BetterBuilder(setType = 1)
 public class Student {
@@ -130,7 +132,7 @@ public class Student {
 
 ### NoBuilder switch
 
-Once make {BUILDER_TYPE = BuilderType.NO_BUILDER}, BetterBuilder will not generate builder methods (nor the allArgsConstructor).
+Once make `BUILDER_TYPE = BuilderType.NO_BUILDER`, BetterBuilder will not generate builder methods (nor the allArgsConstructor).
 ```java
 @BetterBuilder(BUILDER_TYPE = BuilderType.NO_BUILDER)
 public class Student {
@@ -140,8 +142,8 @@ public class Student {
 
 ### Field ignore
 
-Make any fields annotated with {@IgnoreGet or @IgnoreSet}, BetterBuilder will
-not generate the get or set method for it.
+Make any fields annotated with **@IgnoreGet** or **@IgnoreSet**, BetterBuilder will
+not generate the get or set methods for them.
 ```java
 @BetterBuilder
 public class Student {
@@ -164,7 +166,7 @@ When we use builder pattern to generate our object, some fields are supposed to 
 initialized. But the classic pattern does not guarantee this.
 
 BetterBuilder provides a type-safe builder pattern. Once the fields annotated with
-@Required haven't been initialized, the goal object will not be generated[instead, an IllegalArgumentException will be thrown].
+@Required haven't been initialized, the goal object will not be generated ( Instead, an IllegalArgumentException will be thrown ).
 
 ```java
 @BetterBuilder(BUILDER_TYPE = BuilderType.TYPE_SAFE, fluentSet = false, fluentGet = true)
