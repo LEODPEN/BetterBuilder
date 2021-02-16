@@ -5,8 +5,19 @@
 [![Version](https://img.shields.io/badge/version-1.0.2-orange)](https://github.com/LEODPEN/BetterBuilder/releases)
 ---
 BetterBuilder is a [Java annotation processor](https://docs.oracle.com/javase/8/docs/api/javax/annotation/processing/Processor.html) used for
-automatically generating better builder codes([builder design pattern](https://en.wikipedia.org/wiki/Builder_pattern#Java)) with fluent get/set methods, 
+automatically generating **better** builder codes([builder design pattern](https://en.wikipedia.org/wiki/Builder_pattern#Java)), 
 which can make coding much more comfortable.
+
+### Why better ?
+
++ [fluent get/set method](#fluentSet-switch)
++ [configurable get/set](#field-ignore).
++ [2 set type provided](#set-type)
++ 3 builder patterns provided:
+    + [no builder](#nobuilder-switch)
+    + classic
+    + [**type safe**](#type-safe-builder)
+
 
 ## Getting BetterBuilder
 
@@ -119,9 +130,9 @@ public class Student {
 
 ### NoBuilder switch
 
-Once make {noBuilder = true}, BetterBuilder will not generate builder methods (nor the allArgsConstructor).
+Once make {BUILDER_TYPE = BuilderType.NO_BUILDER}, BetterBuilder will not generate builder methods (nor the allArgsConstructor).
 ```java
-@BetterBuilder(noBuilder = true)
+@BetterBuilder(BUILDER_TYPE = BuilderType.NO_BUILDER)
 public class Student {
     ...
 }
@@ -147,6 +158,27 @@ public class Student {
 It is for those **fields that aren't allowed to be changed or accessed after 
 initialization**.
 
+### Type-Safe Builder
+
+When we use builder pattern to generate our object, some fields are supposed to be
+initialized. But the classic pattern does not guarantee this.
+
+BetterBuilder provides a type-safe builder pattern. Once the fields annotated with
+@Required haven't been initialized, the goal object will not be generated[instead, an IllegalArgumentException will be thrown].
+
+```java
+@BetterBuilder(BUILDER_TYPE = BuilderType.TYPE_SAFE, fluentSet = false, fluentGet = true)
+public class TypeSafe {
+    @BetterBuilder.Required
+    private Integer ID;
+    @BetterBuilder.Required
+    private String name;
+    private Boolean PID;
+    private Long PID79211;
+}
+```
+you can also see the detail files : 
+[type-safe](https://github.com/LEODPEN/BetterBuilder/blob/main/testModule/src/main/java/TypeSafe.java) and  [type-safe-test](https://github.com/LEODPEN/BetterBuilder/blob/main/testModule/src/test/java/TypeSafeTest.java).
 
 ## Todo list
 
@@ -158,7 +190,7 @@ initialization**.
 - [x] fluent - get / test
     - [x] ignore get
 - [x] compatible with lombok
-- [ ] type-safe builder / @Required for certain fields 
+- [x] type-safe builder
 
 ...
 
