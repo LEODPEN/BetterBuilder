@@ -2,7 +2,7 @@
 
 [![GitHub license](https://img.shields.io/github/license/LEODPEN/BetterBuilder)](https://github.com/LEODPEN/BetterBuilder/blob/main/LICENSE) 
 ![Build status](https://img.shields.io/badge/build-passing-brightgreen)
-[![Version](https://img.shields.io/badge/version-1.0.2-orange)](https://github.com/LEODPEN/BetterBuilder/releases)
+[![Version](https://img.shields.io/badge/version-1.0.8-orange)](https://github.com/LEODPEN/BetterBuilder/releases)
 ---
 BetterBuilder is a [Java annotation processor](https://docs.oracle.com/javase/8/docs/api/javax/annotation/processing/Processor.html) used for
 automatically generating **better** builder codes([builder design pattern](https://en.wikipedia.org/wiki/Builder_pattern#Java)), 
@@ -12,10 +12,10 @@ which can make coding much more comfortable.
 
 + [fluent get/set method](#fluentSet-switch)
 + [configurable get/set](#field-ignore).
-+ [2 set type provided](#set-type)
++ [2 set types provided](#set-type)
 + 3 builder patterns provided:
     + [no builder](#nobuilder-switch)
-    + classic
+    + [classic](#usage)
     + [**type safe**](#type-safe-builder)
 
 
@@ -29,7 +29,7 @@ Download from [releases](https://github.com/LEODPEN/betterBuilder/releases).
 (Just add it to your classpath)
 ### Maven
 
-BetterBuilder(v1.0.2) has already been published to Central https://repo1.maven.org/maven2/.
+BetterBuilder(v1.0.8) has already been published to Central https://repo1.maven.org/maven2/.
 
 Example Maven settings:
 
@@ -37,7 +37,7 @@ Example Maven settings:
 <dependency>
   <groupId>cn.mpy634</groupId>
   <artifactId>BetterBuilder</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.8</version>
   <scope>provided</scope>
 </dependency>
 ```
@@ -177,7 +177,7 @@ public class TypeSafe {
     private Long PID79211;
 }
 ```
-you can also see the detail files : 
+You can also see the detail files : 
 [type-safe](https://github.com/LEODPEN/BetterBuilder/blob/main/testModule/src/main/java/TypeSafe.java) and  [type-safe-test](https://github.com/LEODPEN/BetterBuilder/blob/main/testModule/src/test/java/TypeSafeTest.java).
 
 ## Todo list
