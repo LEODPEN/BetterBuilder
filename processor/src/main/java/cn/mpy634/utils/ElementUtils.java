@@ -1,12 +1,10 @@
 package cn.mpy634.utils;
 
 import cn.mpy634.annotation.BetterBuilder;
+import cn.mpy634.constant.StrConstant;
 
 import javax.lang.model.element.*;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -72,10 +70,25 @@ public class ElementUtils {
         return ignore;
     }
 
-    public static List<String> constructTypeSaleList(Element e) {
+    public static Map<String, String> constructTypeSaleList(Element e) {
         List<VariableElement> fields = getFields(e);
-        // todo
-        return null;
+        Set<String> fnames = fields.stream().map(v -> v.getSimpleName().toString()).collect(Collectors.toSet());
+        Map<String, String> map = new HashMap<>();
+        for (VariableElement vlm : fields) {
+            if (!vlm.getModifiers().contains(Modifier.STATIC)) {
+                BetterBuilder.Required ig = vlm.getAnnotation(BetterBuilder.Required.class);
+                String name = vlm.getSimpleName().toString();
+                if (ig != null) {
+                    String toGenerate = StrConstant.requirePrefix + name;
+                    while (fnames.contains(toGenerate)) {
+                        toGenerate += Objects.hashCode(toGenerate);
+                    }
+                    fnames.add(toGenerate);
+                    map.put(name, toGenerate);
+                }
+            }
+        }
+        return map;
     }
 
 }

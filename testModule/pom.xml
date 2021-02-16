@@ -19,7 +19,7 @@
         <dependency>
             <groupId>cn.mpy634</groupId>
             <artifactId>BetterBuilder</artifactId>
-            <version>1.0.3-SNAPSHOT</version>
+            <version>1.0.8-SNAPSHOT</version>
         </dependency>
 
         <dependency>

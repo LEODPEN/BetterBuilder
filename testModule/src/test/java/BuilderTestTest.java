@@ -22,7 +22,7 @@ class BuilderTestTest {
     }
 
     @Test
-    public void testBuilder() {
+    public void testBuilder() throws Exception {
         String name = "LEO D PEN";
         Integer ID = 0;
         bt2 = BuilderTest.builder()

@@ -28,6 +28,15 @@ public class JCTreeUtils {
         );
     }
 
+    public static JCTree.JCExpression memberAccess(String components, TreeMaker treeMaker, Names names) {
+        String[] componentArray = components.split("\\.");
+        JCTree.JCExpression expr = treeMaker.Ident(names.fromString(componentArray[0]));
+        for (int i = 1; i < componentArray.length; i++) {
+            expr = treeMaker.Select(expr, names.fromString(componentArray[i]));
+        }
+        return expr;
+    }
+
     public static JCTree.JCExpression makeSelect(String l, Name r, TreeMaker treeMaker, Names names) {
         return treeMaker.Select(treeMaker.Ident(names.fromString(l)), r);
     }
@@ -101,9 +110,4 @@ public class JCTreeUtils {
                 }).forEach(targetFields::append);
         return targetFields.toList();
     }
-
-
-
-
-
 }

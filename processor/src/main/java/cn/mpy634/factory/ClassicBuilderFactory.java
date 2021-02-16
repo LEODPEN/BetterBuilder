@@ -28,36 +28,9 @@ public class ClassicBuilderFactory extends BuilderFactory{
         // ignore or give bad op msg.
     }
 
-
-    @Override
-    public void makeBuilderMethod(JCTree.JCClassDecl innerClass) {
-        List<JCTree.JCStatement> statements = List.of(
-                treeMaker.Return(
-                        treeMaker.NewClass(
-                                null,
-                                List.nil(),
-                                treeMaker.Ident(innerClass.name),
-                                List.nil(),
-                                null
-                        )
-                )
-        );
-        JCTree.JCMethodDecl builder = treeMaker.MethodDef(
-                treeMaker.Modifiers(Flags.PUBLIC | Flags.STATIC),
-                names.fromString(StrConstant.BUILDER),
-                treeMaker.Ident(innerClass.name),
-                List.nil(),
-                List.nil(),
-                List.nil(),
-                treeMaker.Block(0L, statements),
-                null
-        );
-        jcClassDecl.defs = jcClassDecl.defs.prepend(builder);
-    }
-
     @Override
     public void makeBuilder() {
-        Name builderClassName = names.fromString(jcClassDecl.name.toString() + StrConstant.builderSuffix);
+        final Name builderClassName = names.fromString(jcClassDecl.name.toString() + StrConstant.builderSuffix);
         List<JCTree.JCVariableDecl> builderFields = JCTreeUtils.copyFields(variableDecls, treeMaker, names);
         JCTree.JCMethodDecl constructor = JCTreeUtils.makeNoArgsConstructor(treeMaker, names, false);
 

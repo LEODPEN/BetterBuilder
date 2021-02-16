@@ -1,5 +1,5 @@
 import cn.mpy634.annotation.BetterBuilder;
-import lombok.Builder;
+import cn.mpy634.enums.BuilderType;
 import lombok.Data;
 
 /**
@@ -8,10 +8,7 @@ import lombok.Data;
  * @desc
  */
 
-//@Builder
-//@Setter
-//@Builder
-@BetterBuilder(fluentGet = false, fluentSet = false)
+@BetterBuilder(fluentGet = false, fluentSet = false, BUILDER_TYPE = BuilderType.CLASSIC)
 @Data
 public class BuilderTest {
 

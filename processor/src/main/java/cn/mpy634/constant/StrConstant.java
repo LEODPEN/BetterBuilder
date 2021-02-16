@@ -14,6 +14,10 @@ public interface StrConstant {
 
     String builderSuffix = "Builder";
 
+    String requirePrefix = "P";
+
+    String exceptionSuffix = " has not been initialized !";
+
                 /******* method name *******/
 
     String BUILDER = "builder";

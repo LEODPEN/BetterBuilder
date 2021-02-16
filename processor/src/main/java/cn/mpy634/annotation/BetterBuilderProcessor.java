@@ -71,7 +71,6 @@ public class BetterBuilderProcessor extends AbstractProcessor {
             boolean makeAllArgsConstructor = !ElementUtils.hasAllArgsConstructor(e, e.getModifiers());
             Set<String>[] fieldIgnore = ElementUtils.getIgnoreFields(e);
             builderFactory = whichFactory(bb.BUILDER_TYPE());
-            // todo 找到@required 结合factory 和 ElementUtils
             builderFactory.dealRequiredFields(e);
             tree.accept(new TreeTranslator() {
                 @Override

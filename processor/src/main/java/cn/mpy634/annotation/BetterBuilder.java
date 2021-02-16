@@ -104,4 +104,18 @@ public @interface BetterBuilder {
     @Retention(RetentionPolicy.SOURCE)
     @interface IgnoreGet {
     }
+
+    /**
+     * Annotation that make sure certain fields of the class initialized when the build method called .
+     * Used when {@link BetterBuilder} is placed on the class and
+     * BUILDER_TYPE{@link #BUILDER_TYPE()} = TYPE_SAFE.
+     *
+     * @since 1.0.8
+     * @see BetterBuilder
+     * @see cn.mpy634.enums.BuilderType
+     */
+    @Target(ElementType.FIELD)
+    @Retention(RetentionPolicy.SOURCE)
+    @interface Required {
+    }
 }

@@ -67,7 +67,30 @@ public abstract class BuilderFactory {
 
     public abstract void makeBuilder();
 
-    public abstract void makeBuilderMethod(JCTree.JCClassDecl innerClass);
+    public void makeBuilderMethod(JCTree.JCClassDecl innerClass) {
+        List<JCTree.JCStatement> statements = List.of(
+                treeMaker.Return(
+                        treeMaker.NewClass(
+                                null,
+                                List.nil(),
+                                treeMaker.Ident(innerClass.name),
+                                List.nil(),
+                                null
+                        )
+                )
+        );
+        JCTree.JCMethodDecl builder = treeMaker.MethodDef(
+                treeMaker.Modifiers(Flags.PUBLIC | Flags.STATIC),
+                names.fromString(StrConstant.BUILDER),
+                treeMaker.Ident(innerClass.name),
+                List.nil(),
+                List.nil(),
+                List.nil(),
+                treeMaker.Block(0L, statements),
+                null
+        );
+        jcClassDecl.defs = jcClassDecl.defs.prepend(builder);
+    }
 
     private void makeFluent(Set<String>[] ignore, boolean get, boolean set, byte setType) {
         JCTree.JCIdent classType = treeMaker.Ident(jcClassDecl.name);
